@@ -1,131 +1,145 @@
 "use strict";
 
-
-let cities = [
-    {
-        name: "Benbrook, TX",
-        latitude: 32.6732,
-        longitude: -97.4606
-    },
-    {
-        name: "Seattle, WA",
-        latitude: 47.6097,
-        longitude: -122.3331
-    },
-    {
-        name: "Miami, FL",
-        latitude: 25.7617,
-        longitude: -80.1918
-    },
-    {
-        name: "Denver, CO",
-        latitude: 39.7392,
-        longitude: -104.9903
-    },
-    {
-        name: "Chicago, IL",
-        latitude: 41.8781,
-        longitude: -87.6298
-    },
-    {
-        name: "New York City, NY",
-        latitude: 40.7128,
-        longitude: -74.0060
-    },
-    {
-        name: "San Francisco, CA",
-        latitude: 37.7749,
-        longitude: -122.4194
-    },
-    {
-        name: "Nashville, TN",
-        latitude: 36.1627,
-        longitude: -86.7816
-    },
-    {
-        name: "Boston, MA",
-        latitude: 42.3601,
-        longitude: -71.0589
-    },
-    {
-        name: "New Orleans, LA",
-        latitude: 29.9511,
-        longitude: -90.0715
-    }
-];
+console.log('loading...');
 
 
-const stateList = document.getElementById("stateList");
-const displayData = document.getElementById("displayData");
+const citiesDropdown = document.getElementById("citiesDropdown");
+let selectedCity = citiesDropdown.value;
+
+const latitudeOutput = document.getElementById("latitudeOutput");
+const longitudeOutput = document.getElementById("longitudeOutput");
+
+const geoCard = document.getElementById("geoCard");
+const table = document.getElementById("table");
+
+const weathertablebody = document.getElementById("weathertablebody");
 
 
 
-window.onload = () => {
-    stateList.onchange = onStateListChange;
+window.onload = function () {
 
+    addCitiesToDropdown();
 
-    stateListSelect();
+    hideGeographicLocationCard();
+
+    hideTableCard();
+
+    citiesDropdown.onchange = showGeographicLocation;
 }
 
 
-function stateListSelect() {
 
-    let initalOption = new Option("Please select a location!","");
-    stateList.appendChild(initalOption);
 
-    for (let listOfStates of cities) {
-        let newOption = new Option(listOfStates.name);
-        stateList.appendChild(newOption);
-    }
-}
-function onStateListChange() {
-    let selectedState = stateList.value;
+function addCitiesToDropdown() {
+    citiesDropdown.innerHTML = ""
+    let initalOption = new Option("Please Select A State", "")
+    citiesDropdown.appendChild(initalOption)
+    for (let city of cities) {
 
-    const stateFilter = cities.filter(p => p.name == selectedState);
-    console.log(stateFilter)
-    if (stateFilter > 0) {
-        for (let state of stateFilter) {
-            makeCard(state);
-           
-        }
+        let newCityOption = new Option(city.name);
+        citiesDropdown.appendChild(newCityOption);
     }
 
+    console.log(`Cities are in the Dropdown`);
+}
 
 
 
-function makeCard(state){
-    let col = document.createElement("div");
-    col.className = "container col my-2";
-    displayData.appendChild(col);
+function showGeographicLocation() {
+    weathertablebody.innerHTML = "";
+    selectedCity = citiesDropdown.value;
 
-    let card = document.createElement("div");
-    card.className = "card";
-    col.appendChild(card);
+    if (selectedCity !== "") {
+        const theSelectedCity = cities.find(city => city.name === selectedCity);
 
-    let cardBody = document.createElement("div");
-    cardBody.className = "card-body";
-    card.appendChild(cardBody);
+        const latitude = theSelectedCity.latitude;
+        const longitude = theSelectedCity.longitude;
 
-    let  h4StateName = document.createElement("h4");
-    h4StateName.className = "card-title";
-    h4StateName.innerHTML = state.name;
-    cardBody.appendChild(h4StateName);
 
-    let ulList = document.createElement("ul");
-    ulList.className = "ul";
-    h4parkName.appendChild(ulList);
+        console.log(latitude);
+        console.log(longitude);
 
-    let listId = document.createElement("li");
-    listId.className = "stateLat";
-    listId.innerHTML = "latitude: " + state.latitude;
-    ulList.appendChild(listId);
+        latitudeOutput.innerHTML = latitude;
+        longitudeOutput.innerHTML = longitude;
 
-    let listAddress = document.createElement("li");
-    listAddress.className = "stateLong";
-    listAddress.innerHTML = "longitude: " + state.longitude;
-    listId.appendChild(listAddress);
+        showGeographicLocationCard();
+        showTableCard();
+        getWeatherFromAPIForCity();
+    }
+    else{
+        hideTableCard()
+    }
+}
+
+
+
+
+function hideGeographicLocationCard() {
+
+    geoCard.style.display = "none";
 
 }
+
+function showGeographicLocationCard() {
+
+    geoCard.style.display = "block";
+
+}
+
+
+
+function hideTableCard() {
+
+    table.style.display = "none";
+
+}
+
+function showTableCard() {
+
+    table.style.display = "block";
+
+}
+
+
+
+
+function getWeatherFromAPIForCity() {
+
+    const theSelectedCity = cities.find(city => city.name === selectedCity);
+    const stationLookupUrl = `https://api.weather.gov/points/${theSelectedCity.latitude},${theSelectedCity.longitude}`;
+
+    fetch(stationLookupUrl)
+        .then(response => response.json())
+        .then(data => {
+            const weatherUrl = data.properties.forecast;
+            getWeather(weatherUrl);
+        })
+}
+
+
+function getWeather(weatherUrl) {
+    fetch(weatherUrl)
+        .then(response => response.json())
+        .then(data => {
+            const forecastArray = data.properties.periods;
+            displayWeather(forecastArray);
+        })
+}
+
+function displayWeather(forecastArray) {
+    console.log(forecastArray);
+
+
+
+    for (let rowdata of forecastArray) {
+        let newrow = weathertablebody.insertRow(-1);
+        let newcell1 = newrow.insertCell(0);
+        newcell1.innerHTML = rowdata.name;
+
+        let newcell2 = newrow.insertCell(1)
+        newcell2.innerHTML = rowdata.temperature + rowdata.temperatureUnit;
+
+    }
 
 
 }
