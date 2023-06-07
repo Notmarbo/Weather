@@ -56,14 +56,48 @@ let cities = [
 
 
 const stateList = document.getElementById("stateList");
-const submitBtn = document.getElementById("submitBtn");
+const displayData = document.getElementById("displayData");
 
 
-    window.onload = () => {
-        submitBtn.onclick = onSubmitBtnClicked;
+
+window.onload = () => {
+    stateList.onchange = onStateListChange;
+
+
+    stateListSelect();
+}
+
+
+function stateListSelect() {
+
+    let initalOption = new Option("Please select a location!","");
+    stateList.appendChild(initalOption);
+
+    for (let listOfStates of cities) {
+        let newOption = new Option(listOfStates.name);
+        stateList.appendChild(newOption);
+    }
+}
+function onStateListChange() {
+    let selectedState = stateList.value;
+
+    const stateFilter = cities.filter(p => p.name == selectedState);
+    console.log(stateFilter)
+    if (stateFilter > 0) {
+        for (let state of stateFilter) {
+            makeCard(state);
+           
+        }
     }
 
 
-function onSubmitBtnClicked(){
-    
+
+
+function makeCard(state){
+    let col = document.createElement("div");
+    col.className = "card container";
+    displayData.appendChild(col);
+}
+
+
 }
