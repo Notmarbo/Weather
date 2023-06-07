@@ -95,8 +95,36 @@ function onStateListChange() {
 
 function makeCard(state){
     let col = document.createElement("div");
-    col.className = "card container";
+    col.className = "container col my-2";
     displayData.appendChild(col);
+
+    let card = document.createElement("div");
+    card.className = "card";
+    col.appendChild(card);
+
+    let cardBody = document.createElement("div");
+    cardBody.className = "card-body";
+    card.appendChild(cardBody);
+
+    let  h4StateName = document.createElement("h4");
+    h4StateName.className = "card-title";
+    h4StateName.innerHTML = state.name;
+    cardBody.appendChild(h4StateName);
+
+    let ulList = document.createElement("ul");
+    ulList.className = "ul";
+    h4parkName.appendChild(ulList);
+
+    let listId = document.createElement("li");
+    listId.className = "stateLat";
+    listId.innerHTML = "latitude: " + state.latitude;
+    ulList.appendChild(listId);
+
+    let listAddress = document.createElement("li");
+    listAddress.className = "stateLong";
+    listAddress.innerHTML = "longitude: " + state.longitude;
+    listId.appendChild(listAddress);
+
 }
 
 
